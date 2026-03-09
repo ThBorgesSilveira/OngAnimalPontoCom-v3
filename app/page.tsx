@@ -86,7 +86,7 @@ export default function Home() {
           <div className="hero-content">
 
             <div className="hero-text">
-              <h2>ONG Animal.Com</h2>
+              <h2>ONG AnimalPontoCom</h2>
 
               <p>
                 Acreditamos que todo animal merece amor, cuidado e um lar. 
