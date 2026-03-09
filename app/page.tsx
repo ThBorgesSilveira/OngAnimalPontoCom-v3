@@ -57,7 +57,7 @@ export default function Home() {
                 </li>
 
                 <li className="nav-item">
-                  <Link className="nav-link" href="/about">
+                  <Link className="nav-link" href="/about/page.tsx">
                     SOBRE NÓS
                   </Link>
                 </li>
