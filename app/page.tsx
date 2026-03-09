@@ -1,3 +1,4 @@
+import Link from "next/link"
 export default function Home() {
   return (
     <>
@@ -56,7 +57,9 @@ export default function Home() {
                 </li>
 
                 <li className="nav-item">
-                  <a className="nav-link" href="/pageAboutUs">SOBRE NÓS</a>
+                  <Link className="nav-link" href="/about">
+                    SOBRE NÓS
+                  </Link>
                 </li>
 
                 <li className="nav-item">

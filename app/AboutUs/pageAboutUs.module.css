@@ -1,0 +1,47 @@
+.hero h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.hero p {
+  font-size: 1.2rem;
+}
+
+.heroContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.heroText {
+  flex: 1;
+}
+
+.figure {
+  max-width: 600px;
+  flex-shrink: 0;
+}
+
+.figureImg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.faixaInferior {
+  height: 50px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .heroContent {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .figure {
+    max-width: 100%;
+  }
+}
