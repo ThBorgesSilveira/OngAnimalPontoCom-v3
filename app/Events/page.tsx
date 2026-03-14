@@ -43,7 +43,7 @@ export default function EventsPage() {
         </div>
       </section>
 
-      <div className="faixa-inferior"></div>
+      <div className="lowerBar"></div>
     </main>
   )
 }

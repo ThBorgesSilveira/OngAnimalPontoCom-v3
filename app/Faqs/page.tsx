@@ -36,7 +36,7 @@ export default function FaqsPage() {
         </div>
       </section>
 
-      <div className="faixa-inferior"></div>
+      <div className="lowerBar"></div>
     </main>
   )
 }

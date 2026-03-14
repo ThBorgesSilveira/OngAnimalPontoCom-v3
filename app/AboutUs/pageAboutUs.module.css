@@ -1,3 +1,7 @@
+.hero {
+  padding: 3rem 2rem;
+}
+
 .hero h1 {
   font-size: 2rem;
   margin-bottom: 10px;
@@ -28,10 +32,6 @@
   width: 100%;
   height: auto;
   display: block;
-}
-
-.faixaInferior {
-  height: 50px;
 }
 
 /* Responsividade */

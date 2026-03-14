@@ -53,7 +53,7 @@ export default function BePartnerPage() {
         </div>
       </section>
 
-      <div className="faixa-inferior"></div>
+      <div className="lowerBar"></div>
     </main>
   )
 }

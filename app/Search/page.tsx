@@ -19,7 +19,7 @@ export default function SearchPage() {
         </div>
       </section>
 
-      <div className="faixa-inferior"></div>
+      <div className="lowerBar"></div>
     </main>
   )
 }

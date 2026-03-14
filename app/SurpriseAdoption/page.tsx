@@ -33,7 +33,7 @@ export default function SurpriseAdoptionPage() {
         </div>
       </section>
 
-      <div className="faixa-inferior"></div>
+      <div className="lowerBar"></div>
     </main>
   )
 }

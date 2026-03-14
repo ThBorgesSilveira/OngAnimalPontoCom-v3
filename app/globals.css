@@ -211,7 +211,7 @@ header {
 }
 
 /* Faixa inferior */
-.faixa-inferior {
+.lowerBar {
   height: 30px;
   background-color: var(--purple);
   border-top: 4px solid var(--green);
