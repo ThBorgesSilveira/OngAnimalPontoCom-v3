@@ -164,6 +164,52 @@ header {
   box-shadow: var(--shadow);
 }
 
+.hero-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.hero-text {
+  flex: 1;
+}
+
+.figure {
+  max-width: 600px;
+  flex-shrink: 0;
+}
+
+.figure-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.lista {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.search-box {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-box input {
+  flex: 1;
+  min-width: 220px;
+}
+
 /* Faixa inferior */
 .faixa-inferior {
   height: 30px;
@@ -200,6 +246,20 @@ header {
 
   .hero p {
     font-size: 1rem;
+  }
+
+  .hero-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .figure {
+    max-width: 100%;
+  }
+
+  .lista {
+    text-align: left;
+    display: inline-block;
   }
 }
 

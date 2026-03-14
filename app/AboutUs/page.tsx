@@ -5,7 +5,6 @@ export default function AboutPage() {
     <main>
       <section className={styles.hero}>
         <div className={styles.heroContent}>
-
           <div className={styles.heroText}>
             <h1>Sobre nós</h1>
 
@@ -27,13 +26,13 @@ export default function AboutPage() {
 
             <p>
               Também organizamos <strong>eventos solidários</strong>, como a live
-              “Solidariedade AU Vivo”, que arrecadou recursos para quitar dívidas
+              "Solidariedade AU Vivo", que arrecadou recursos para quitar dívidas
               em clínicas veterinárias e sensibilizar a comunidade sobre a
               importância da causa animal.
             </p>
 
             <p>
-              Além disso, atuamos em <strong>campanhas de conscientização</strong>
+              Além disso, atuamos em <strong>campanhas de conscientização</strong>{" "}
               sobre posse responsável e bem-estar animal, e apoiamos iniciativas
               de castração para reduzir o número de animais abandonados.
             </p>
@@ -47,7 +46,7 @@ export default function AboutPage() {
 
           <figure className={styles.figure}>
             <img
-              src="\public\images\voluntario_3.png"
+              src="/images/voluntario_3.png"
               className={styles.figureImg}
               alt="Evento de adoção comunitária"
             />
@@ -56,7 +55,6 @@ export default function AboutPage() {
               residencial adaptado.
             </figcaption>
           </figure>
-
         </div>
       </section>
 
