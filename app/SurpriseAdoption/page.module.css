@@ -1,0 +1,204 @@
+.container{
+background:#e6e6e6;
+min-height:70vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:60px 20px;
+}
+
+.card{
+background:white;
+padding:40px;
+border-radius:15px;
+text-align:center;
+width:600px;
+border:6px solid #8a2be2;
+box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+
+.card h2{
+font-size:32px;
+margin-bottom:15px;
+}
+
+.card p{
+font-size:18px;
+color:#333;
+}
+
+.playButton{
+margin-top:25px;
+background:linear-gradient(135deg,#8a2be2,#b04bb5);
+color:white;
+border:none;
+padding:14px 40px;
+border-radius:30px;
+font-size:18px;
+cursor:pointer;
+}
+.petCard{
+display:flex;
+align-items:center;
+gap:30px;
+background:white;
+padding:30px;
+border-radius:12px;
+width:600px;
+margin:auto;
+box-shadow:0 6px 15px rgba(0,0,0,0.15);
+}
+
+.petImage{
+width:220px;
+height:200px;
+object-fit:cover;
+border-radius:10px;
+}
+
+.petInfo{
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+
+.adoptButton{
+margin-top:15px;
+background:#b79ab6;
+border:none;
+padding:10px;
+border-radius:6px;
+cursor:pointer;
+color:white;
+width:120px;
+}
+.modalOverlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.4);
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:1000;
+}
+.modal{
+background:white;
+width:420px;
+padding:25px;
+border-radius:10px;
+box-shadow:0 8px 20px rgba(0,0,0,0.2);
+}
+
+.modalHeader{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
+
+.modalHeader h2{
+font-size:24px;
+}
+
+.closeButton{
+border:none;
+background:none;
+font-size:22px;
+cursor:pointer;
+}
+
+.form{
+display:flex;
+flex-direction:column;
+gap:14px;
+}
+
+.form label{
+font-size:16px;
+}
+
+.form input{
+width:100%;
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+.form textarea{
+width:100%;
+height:100px;
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+resize:none;
+}
+
+.buttons{
+display:flex;
+justify-content:flex-end;
+gap:10px;
+margin-top:10px;
+}
+
+.cancel{
+background:#6c757d;
+color:white;
+border:none;
+padding:8px 16px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.send{
+background:#b79ab6;
+color:white;
+border:none;
+padding:8px 16px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.loadingScreen{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(255,255,255,0.95);
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:999;
+font-size:24px;
+}
+
+.spinner{
+width:60px;
+height:60px;
+border:6px solid #eee;
+border-top:6px solid #8a2be2;
+border-radius:50%;
+animation:spin 1s linear infinite;
+margin-bottom:20px;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg)}
+100%{transform:rotate(360deg)}
+}
+
+.successBox{
+position:fixed;
+bottom:40px;
+right:40px;
+background:#4caf50;
+color:white;
+padding:15px 20px;
+border-radius:8px;
+font-size:16px;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}

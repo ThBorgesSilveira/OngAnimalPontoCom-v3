@@ -1,0 +1,85 @@
+.main{
+  width:100%;
+}
+
+/* HERO */
+
+.hero{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:80px 10%;
+}
+
+.heroText{
+  max-width:500px;
+}
+
+.heroText h1{
+  font-size:48px;
+  margin-bottom:20px;
+}
+
+.heroText p{
+  font-size:18px;
+  margin-bottom:25px;
+}
+
+.primaryButton{
+  padding:12px 25px;
+  border:none;
+  background:#566981;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+}
+
+/* SECTION */
+
+.section{
+  padding:80px 10%;
+  text-align:center;
+}
+
+.cardGrid{
+  margin-top:40px;
+  display:flex;
+  gap:30px;
+  justify-content:center;
+}
+
+.card{
+  max-width:260px;
+}
+
+/* VOLUNTEER */
+
+.volunteer{
+  display:flex;
+  align-items:center;
+  gap:50px;
+  padding:80px 10%;
+}
+
+.secondaryButton{
+  margin-top:20px;
+  padding:12px 25px;
+  border:none;
+  background:#3a415a;
+  color:white;
+  cursor:pointer;
+}
+
+/* GALERIA */
+
+.gallery{
+  padding:80px 10%;
+  text-align:center;
+}
+
+.galleryGrid{
+  margin-top:40px;
+  display:flex;
+  gap:20px;
+  justify-content:center;
+}

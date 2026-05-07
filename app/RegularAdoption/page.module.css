@@ -1,0 +1,184 @@
+.container{
+  width:80%;
+  margin:10px auto 40px auto; /* reduz espaço superior */
+  padding:40px;
+
+  background:white;
+  border-radius:8px;
+
+  box-shadow:0 8px 25px rgba(0,0,0,0.15);
+
+  font-family: Marcellus, serif;
+}
+
+
+
+
+.hero{
+  margin-bottom:30px;
+}
+
+.heroText h1{
+  font-family:Lato, sans-serif;
+  font-size:2.5rem;
+  font-weight:700;
+  margin-bottom:15px;
+}
+
+.heroText p{
+  font-size:1.1rem;
+  line-height:1.6;
+}
+
+
+
+
+.petsSection{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+
+
+
+.petCard{
+display:flex;
+gap:25px;
+border:1px solid #ddd;
+border-radius:10px;
+padding:20px;
+max-width:750px;
+align-items:center;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+
+.petImage{
+width:200px;
+height:200px;
+object-fit:cover;
+border-radius:8px;
+flex-shrink:0;
+}
+
+.petInfo{
+flex:1;
+}
+
+.petInfo h3{
+font-size:22px;
+margin-bottom:10px;
+}
+
+.adoptButton{
+margin-top:15px;
+padding:12px;
+width:200px;
+background-color:#b596b8;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+font-weight:600;
+}
+.modalOverlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.4);
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:999;
+}
+
+.modal{
+background:white;
+width:500px;
+border-radius:10px;
+padding:25px;
+box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+.modalHeader{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
+
+.closeButton{
+background:none;
+border:none;
+font-size:22px;
+cursor:pointer;
+}
+
+.form{
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.form input,
+.form textarea{
+padding:10px;
+border:1px solid #ccc;
+border-radius:6px;
+}
+
+.buttons{
+display:flex;
+justify-content:flex-end;
+gap:10px;
+margin-top:20px;
+}
+
+.cancel{
+background:#6c757d;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:6px;
+}
+
+.send{
+background:#b596b8;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:6px;
+}
+.adoptButton{
+  background:#b596b8;
+  color:white;
+  border:none;
+  padding:10px 20px;
+  border-radius:6px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.adoptButton:hover{
+  background:#9a7fa0;
+  transform:scale(1.05);
+}
+.successBox{
+position:fixed;
+bottom:30px;
+right:30px;
+
+background:#4CAF50;
+color:white;
+
+padding:15px 25px;
+border-radius:8px;
+
+font-weight:bold;
+
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+z-index:1000;
+}
