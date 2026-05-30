@@ -34,6 +34,7 @@ export default function Header() {
               { label: "SOBRE NÓS", href: "/AboutUs" },
               { label: "SEJA PARCEIRO", href: "/BePartner" },
               { label: "FAQ", href: "/Faqs" },
+              { label: "ADM", href: "/Admin" },
             ]}
           />
         </div>

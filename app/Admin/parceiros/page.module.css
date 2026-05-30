@@ -1,0 +1,164 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.hero,
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 1rem;
+}
+
+.heroCopy,
+.formCard,
+.listCard {
+  padding: 1.25rem;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #fff 0%, #f8f4fd 100%);
+  border: 1px solid rgba(138, 43, 226, 0.12);
+  box-shadow: 0 14px 30px rgba(58, 20, 90, 0.08);
+}
+
+.heroCopy {
+  color: #fff;
+  background:
+    radial-gradient(circle at top right, rgba(177, 255, 135, 0.2), transparent 28%),
+    linear-gradient(135deg, #33104f 0%, #571f7d 52%, #7b2bb8 100%);
+}
+
+.kicker {
+  display: inline-flex;
+  margin-bottom: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--green);
+  font-family: Lato, sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.heroCopy h1 {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.heroCopy p {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.heroLinks {
+  display: flex;
+  align-items: flex-end;
+}
+
+.backLink,
+.primaryButton,
+.secondaryButton,
+.refreshButton,
+.rowActions button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  font-family: Lato, sans-serif;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.backLink,
+.primaryButton,
+.refreshButton {
+  background: var(--purple);
+  color: #fff;
+}
+
+.secondaryButton {
+  background: #ede7f6;
+  color: #341049;
+}
+
+.successBox,
+.errorBox {
+  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  font-family: Lato, sans-serif;
+}
+
+.successBox {
+  background: #ecffdf;
+  color: #225c16;
+}
+
+.errorBox {
+  background: #ffe2e2;
+  color: #7c1b1b;
+}
+
+.formCard,
+.listCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.formCard input,
+.formCard textarea {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(138, 43, 226, 0.18);
+  font-family: Lato, sans-serif;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: Lato, sans-serif;
+}
+
+.actions,
+.listHeader,
+.rowActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.listHeader {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Lato, sans-serif;
+}
+
+.table th,
+.table td {
+  padding: 0.85rem;
+  border-bottom: 1px solid rgba(138, 43, 226, 0.12);
+  text-align: left;
+  vertical-align: top;
+}
+
+.rowActions button {
+  background: #efe7fb;
+  color: #35124f;
+}
+
+@media (max-width: 992px) {
+  .hero,
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

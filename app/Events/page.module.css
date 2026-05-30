@@ -1,0 +1,166 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1rem;
+}
+
+.heroCopy,
+.heroHighlight,
+.card,
+.section {
+  border-radius: 24px;
+  border: 1px solid rgba(138, 43, 226, 0.12);
+  box-shadow: 0 14px 30px rgba(58, 20, 90, 0.08);
+}
+
+.heroCopy {
+  padding: 1.5rem;
+  color: #fff;
+  background:
+    radial-gradient(circle at top right, rgba(177, 255, 135, 0.2), transparent 28%),
+    linear-gradient(135deg, #33104f 0%, #571f7d 52%, #7b2bb8 100%);
+}
+
+.kicker {
+  display: inline-flex;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--green);
+  font-family: Lato, sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+
+.heroCopy h1 {
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1.05;
+  margin-bottom: 0.85rem;
+}
+
+.heroCopy p {
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 58ch;
+}
+
+.heroHighlight {
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at top right, rgba(177, 255, 135, 0.16), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f7f1fd 100%);
+}
+
+.highlightLabel,
+.eventType {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(138, 43, 226, 0.1);
+  color: var(--purple);
+  font-family: Lato, sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+}
+
+.heroHighlight h2 {
+  margin-top: 0.9rem;
+  font-size: 1.8rem;
+}
+
+.highlightLocation,
+.date,
+.location,
+.notes,
+.emptyState,
+.error {
+  font-family: Lato, sans-serif;
+}
+
+.section {
+  padding: 1.25rem;
+  background: #fff;
+}
+
+.sectionHeader {
+  margin-bottom: 1rem;
+}
+
+.sectionHeader h2 {
+  margin-bottom: 0.35rem;
+  font-size: 1.8rem;
+}
+
+.sectionHeader p {
+  font-family: Lato, sans-serif;
+  color: #555;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  overflow: hidden;
+  background: linear-gradient(180deg, #fff 0%, #f8f4fd 100%);
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: #f0e7fa;
+}
+
+.cardImage {
+  object-fit: cover;
+}
+
+.cardBody {
+  padding: 1rem 1rem 1.1rem;
+}
+
+.cardBody h3 {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 1.2rem;
+  color: #24123a;
+}
+
+.date {
+  font-weight: 700;
+  color: #4a2668;
+}
+
+.location {
+  color: #555;
+  margin-top: 0.2rem;
+}
+
+.notes {
+  margin-top: 0.75rem;
+  color: #666;
+}
+
+.emptyState {
+  color: #555;
+}
+
+.error {
+  color: #8b1e1e;
+}
+
+@media (max-width: 992px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+}
