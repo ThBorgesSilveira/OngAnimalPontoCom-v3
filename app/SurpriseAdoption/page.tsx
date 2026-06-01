@@ -2,6 +2,7 @@
 import { useState } from "react";
 import styles from "./page.module.css";
 import { api, createPersonWithAddress } from "@/lib/api";
+import { PersonType } from "@/lib/enums/person-type";
 import type { AxiosError } from "axios";
 
 const pets = [
@@ -87,6 +88,7 @@ export default function SurpriseAdoption() {
     try {
       const person = await createPersonWithAddress({
         name: formData.fullName,
+        personType: PersonType.FISICA,
         cpfCnpj: formData.cpfCnpj,
         address: {
           state: formData.state,
@@ -99,9 +101,9 @@ export default function SurpriseAdoption() {
       });
 
       const animalsResponse = await api.get("/animal/all");
-      const animal = (animalsResponse.data as Array<{ id: number; name: string }>).find(
-        (item) => item.name.toLowerCase() === petName.toLowerCase(),
-      );
+      const animal = (
+        animalsResponse.data as Array<{ id: number; name: string }>
+      ).find((item) => item.name.toLowerCase() === petName.toLowerCase());
 
       if (!animal) {
         throw new Error(`Animal ${petName} nao encontrado no banco.`);
@@ -126,7 +128,11 @@ export default function SurpriseAdoption() {
       if (Array.isArray(backendMessage)) {
         setErrorMessage(backendMessage.join(" | "));
       } else {
-        setErrorMessage(backendMessage ?? (error as Error).message ?? "Erro ao enviar formulario.");
+        setErrorMessage(
+          backendMessage ??
+            (error as Error).message ??
+            "Erro ao enviar formulario.",
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -140,8 +146,8 @@ export default function SurpriseAdoption() {
           <div className={styles.card}>
             <h2>Adocao surpresa</h2>
             <p>
-              Na adocao surpresa, voce nao escolhe o pet. A escolha e aleatoria para uma
-              experiencia diferente e emocionante.
+              Na adocao surpresa, voce nao escolhe o pet. A escolha e aleatoria
+              para uma experiencia diferente e emocionante.
             </p>
             <button className={styles.playButton} onClick={handlePlay}>
               Play
@@ -189,14 +195,19 @@ export default function SurpriseAdoption() {
         </div>
       )}
 
-      {errorMessage && <div className={styles.successBox}>Erro ao enviar: {errorMessage}</div>}
+      {errorMessage && (
+        <div className={styles.successBox}>Erro ao enviar: {errorMessage}</div>
+      )}
 
       {showForm && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
               <h2>Formulario de Adocao - {petName}</h2>
-              <button className={styles.closeButton} onClick={() => setShowForm(false)}>
+              <button
+                className={styles.closeButton}
+                onClick={() => setShowForm(false)}
+              >
                 X
               </button>
             </div>
@@ -207,7 +218,9 @@ export default function SurpriseAdoption() {
                 type="text"
                 required
                 value={formData.fullName}
-                onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, fullName: e.target.value }))
+                }
               />
 
               <label>E-mail</label>
@@ -215,7 +228,9 @@ export default function SurpriseAdoption() {
                 type="email"
                 required
                 value={formData.email}
-                onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, email: e.target.value }))
+                }
               />
 
               <label>Telefone</label>
@@ -237,7 +252,9 @@ export default function SurpriseAdoption() {
                 required
                 maxLength={20}
                 value={formData.cpfCnpj}
-                onChange={(e) => setFormData((prev) => ({ ...prev, cpfCnpj: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, cpfCnpj: e.target.value }))
+                }
               />
 
               <label>Pet escolhido</label>
@@ -247,7 +264,9 @@ export default function SurpriseAdoption() {
               <textarea
                 rows={4}
                 value={formData.reason}
-                onChange={(e) => setFormData((prev) => ({ ...prev, reason: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, reason: e.target.value }))
+                }
               ></textarea>
 
               <label>Estado</label>
@@ -255,7 +274,9 @@ export default function SurpriseAdoption() {
                 type="text"
                 required
                 value={formData.state}
-                onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, state: e.target.value }))
+                }
               />
 
               <label>Cidade</label>
@@ -263,7 +284,9 @@ export default function SurpriseAdoption() {
                 type="text"
                 required
                 value={formData.city}
-                onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, city: e.target.value }))
+                }
               />
 
               <label>Bairro</label>
@@ -271,7 +294,9 @@ export default function SurpriseAdoption() {
                 type="text"
                 required
                 value={formData.district}
-                onChange={(e) => setFormData((prev) => ({ ...prev, district: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, district: e.target.value }))
+                }
               />
 
               <label>Rua</label>
@@ -279,14 +304,18 @@ export default function SurpriseAdoption() {
                 type="text"
                 required
                 value={formData.street}
-                onChange={(e) => setFormData((prev) => ({ ...prev, street: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, street: e.target.value }))
+                }
               />
 
               <label>Numero</label>
               <input
                 type="text"
                 value={formData.number}
-                onChange={(e) => setFormData((prev) => ({ ...prev, number: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, number: e.target.value }))
+                }
               />
 
               <label>CEP</label>
@@ -294,15 +323,28 @@ export default function SurpriseAdoption() {
                 type="text"
                 required
                 value={formData.postalCode}
-                onChange={(e) => setFormData((prev) => ({ ...prev, postalCode: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    postalCode: e.target.value,
+                  }))
+                }
               />
 
               <div className={styles.buttons}>
-                <button type="button" className={styles.cancel} onClick={() => setShowForm(false)}>
+                <button
+                  type="button"
+                  className={styles.cancel}
+                  onClick={() => setShowForm(false)}
+                >
                   Cancelar
                 </button>
 
-                <button type="submit" className={styles.send} disabled={isSubmitting}>
+                <button
+                  type="submit"
+                  className={styles.send}
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? "Enviando..." : "Enviar"}
                 </button>
               </div>

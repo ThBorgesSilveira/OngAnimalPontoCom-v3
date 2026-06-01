@@ -2,17 +2,8 @@
 import { useState } from "react";
 import type { AxiosError } from "axios";
 import { api } from "@/lib/api";
-
-export enum PartnerType {
-  RECURRING_DONATION = "Doação recorrente",
-  EVENT_SPONSOR = "Patrocínio de eventos",
-  CORPORATE_VOLUNTEERING = "Voluntariado corporativo",
-}
-
-export enum PersonType {
-  FISICA = "FISICA",
-  JURIDICA = "JURIDICA",
-}
+import { PersonType } from "@/lib/enums/person-type";
+import { PartnerType } from "@/lib/enums/partner-type";
 
 const partnerTypeOptions = [
   PartnerType.RECURRING_DONATION,

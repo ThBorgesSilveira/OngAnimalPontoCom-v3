@@ -97,10 +97,12 @@ z-index:999;
 
 .modal{
 background:white;
-width:500px;
+width:min(500px, 90vw);
+max-height:90vh;
 border-radius:10px;
 padding:25px;
 box-shadow:0 10px 30px rgba(0,0,0,0.3);
+overflow-y:auto;
 }
 
 .modalHeader{
@@ -124,7 +126,8 @@ gap:10px;
 }
 
 .form input,
-.form textarea{
+.form textarea,
+.form select{
 padding:10px;
 border:1px solid #ccc;
 border-radius:6px;
