@@ -1,14 +1,39 @@
 ﻿"use client";
 import { useState } from "react";
 import type { AxiosError } from "axios";
-import { api, createPersonWithAddress } from "@/lib/api";
+import { api } from "@/lib/api";
 
-type FormData = {
+export enum PartnerType {
+  RECURRING_DONATION = "Doação recorrente",
+  EVENT_SPONSOR = "Patrocínio de eventos",
+  CORPORATE_VOLUNTEERING = "Voluntariado corporativo",
+}
+
+export enum PersonType {
+  FISICA = "FISICA",
+  JURIDICA = "JURIDICA",
+}
+
+const partnerTypeOptions = [
+  PartnerType.RECURRING_DONATION,
+  PartnerType.EVENT_SPONSOR,
+  PartnerType.CORPORATE_VOLUNTEERING,
+] as const;
+
+const personTypeOptions = [
+  { value: PersonType.FISICA, label: "Física" },
+  { value: PersonType.JURIDICA, label: "Jurídica" },
+] as const;
+
+type PartnerFormData = {
   name: string;
   email: string;
   phone: string;
   cpfCnpj: string;
-  partnershipType: string;
+  personType: PersonType;
+  partnershipType: PartnerType;
+  corporateName: string;
+  tradeName: string;
   notes: string;
   state: string;
   city: string;
@@ -18,12 +43,15 @@ type FormData = {
   postalCode: string;
 };
 
-const initialForm: FormData = {
+const initialForm: PartnerFormData = {
   name: "",
   email: "",
   phone: "",
   cpfCnpj: "",
-  partnershipType: "Doacao recorrente",
+  personType: PersonType.FISICA,
+  partnershipType: PartnerType.RECURRING_DONATION,
+  corporateName: "",
+  tradeName: "",
   notes: "",
   state: "",
   city: "",
@@ -33,8 +61,17 @@ const initialForm: FormData = {
   postalCode: "",
 };
 
+function normalizeText(value: string) {
+  const trimmed = value.trim();
+  return trimmed.length === 0 ? undefined : trimmed;
+}
+
+function normalizeDigits(value: string, maxLength: number) {
+  return value.replace(/\D/g, "").slice(0, maxLength);
+}
+
 export default function BePartnerPage() {
-  const [formData, setFormData] = useState<FormData>(initialForm);
+  const [formData, setFormData] = useState<PartnerFormData>(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -46,24 +83,32 @@ export default function BePartnerPage() {
     setIsSubmitting(true);
 
     try {
-      const person = await createPersonWithAddress({
-        name: formData.name,
-        cpfCnpj: formData.cpfCnpj,
-        address: {
-          state: formData.state,
-          city: formData.city,
-          district: formData.district,
-          street: formData.street,
-          number: formData.number,
-          postalCode: formData.postalCode,
-        },
-      });
-
       await api.post("/partner", {
-        personId: person.id,
-        corporateName: formData.name,
-        tradeName: formData.name,
-        notes: `Tipo: ${formData.partnershipType} | Email: ${formData.email} | Telefone: ${formData.phone} | Observacoes: ${formData.notes}`,
+        person: {
+          name: formData.name.trim(),
+          personType: formData.personType,
+          cpfCnpj: normalizeDigits(formData.cpfCnpj, 20),
+          address: {
+            state: formData.state.trim(),
+            city: formData.city.trim(),
+            district: formData.district.trim(),
+            street: formData.street.trim(),
+            number: normalizeText(formData.number),
+            postalCode: normalizeDigits(formData.postalCode, 8),
+          },
+        },
+        partnershipType: formData.partnershipType,
+        corporateName: normalizeText(formData.corporateName),
+        tradeName: normalizeText(formData.tradeName),
+        notes: normalizeText(
+          [
+            formData.notes,
+            formData.email ? `Email: ${formData.email.trim()}` : "",
+            formData.phone ? `Telefone: ${formData.phone.trim()}` : "",
+          ]
+            .filter(Boolean)
+            .join(" | "),
+        ),
       });
 
       setFormData(initialForm);
@@ -74,7 +119,11 @@ export default function BePartnerPage() {
       if (Array.isArray(backendMessage)) {
         setErrorMessage(backendMessage.join(" | "));
       } else {
-        setErrorMessage(backendMessage ?? (error as Error).message ?? "Erro ao enviar formulario.");
+        setErrorMessage(
+          backendMessage ??
+            (error as Error).message ??
+            "Erro ao enviar formulario.",
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -87,8 +136,9 @@ export default function BePartnerPage() {
         <div className="hero-text">
           <h1>Torne-se parceiro</h1>
           <p>
-            Ao se tornar parceiro da AnimalPontoCom, sua empresa ou iniciativa contribui
-            diretamente para acoes de resgate, cuidado e adocao responsavel.
+            Ao se tornar parceiro da AnimalPontoCom, sua empresa ou iniciativa
+            contribui diretamente para acoes de resgate, cuidado e adocao
+            responsavel.
           </p>
 
           {successMessage && <p className="text-success">{successMessage}</p>}
@@ -105,7 +155,68 @@ export default function BePartnerPage() {
                 type="text"
                 required
                 value={formData.name}
-                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label" htmlFor="personType">
+                Tipo de pessoa
+              </label>
+              <select
+                className="form-select"
+                id="personType"
+                value={formData.personType}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    personType: e.target.value as PersonType,
+                  }))
+                }
+              >
+                {personTypeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label" htmlFor="corporateName">
+                Nome empresarial (opcional)
+              </label>
+              <input
+                className="form-control"
+                id="corporateName"
+                type="text"
+                value={formData.corporateName}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    corporateName: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label" htmlFor="tradeName">
+                Nome fantasia (opcional)
+              </label>
+              <input
+                className="form-control"
+                id="tradeName"
+                type="text"
+                value={formData.tradeName}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    tradeName: e.target.value,
+                  }))
+                }
               />
             </div>
 
@@ -119,7 +230,9 @@ export default function BePartnerPage() {
                 type="email"
                 required
                 value={formData.email}
-                onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, email: e.target.value }))
+                }
               />
             </div>
 
@@ -134,9 +247,12 @@ export default function BePartnerPage() {
                 required
                 maxLength={11}
                 value={formData.phone}
-                onInput={(e: React.FormEvent<HTMLInputElement>) => {
-                  const onlyNumbers = e.currentTarget.value.replace(/\D/g, "");
-                  setFormData((prev) => ({ ...prev, phone: onlyNumbers }));
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const phone = e.target.value.replace(/\D/g, "");
+                  setFormData((prev) => ({
+                    ...prev,
+                    phone,
+                  }));
                 }}
               />
             </div>
@@ -152,23 +268,32 @@ export default function BePartnerPage() {
                 required
                 maxLength={20}
                 value={formData.cpfCnpj}
-                onChange={(e) => setFormData((prev) => ({ ...prev, cpfCnpj: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, cpfCnpj: e.target.value }))
+                }
               />
             </div>
 
             <div className="mb-3">
-              <label className="form-label" htmlFor="tipo">
+              <label className="form-label" htmlFor="partnershipType">
                 Tipo de parceria
               </label>
               <select
                 className="form-select"
-                id="tipo"
+                id="partnershipType"
                 value={formData.partnershipType}
-                onChange={(e) => setFormData((prev) => ({ ...prev, partnershipType: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    partnershipType: e.target.value as PartnerType,
+                  }))
+                }
               >
-                <option>Doacao recorrente</option>
-                <option>Patrocinio de eventos</option>
-                <option>Voluntariado corporativo</option>
+                {partnerTypeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -182,7 +307,9 @@ export default function BePartnerPage() {
                 type="text"
                 required
                 value={formData.state}
-                onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, state: e.target.value }))
+                }
               />
             </div>
 
@@ -196,7 +323,9 @@ export default function BePartnerPage() {
                 type="text"
                 required
                 value={formData.city}
-                onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, city: e.target.value }))
+                }
               />
             </div>
 
@@ -210,7 +339,9 @@ export default function BePartnerPage() {
                 type="text"
                 required
                 value={formData.district}
-                onChange={(e) => setFormData((prev) => ({ ...prev, district: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, district: e.target.value }))
+                }
               />
             </div>
 
@@ -224,7 +355,9 @@ export default function BePartnerPage() {
                 type="text"
                 required
                 value={formData.street}
-                onChange={(e) => setFormData((prev) => ({ ...prev, street: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, street: e.target.value }))
+                }
               />
             </div>
 
@@ -237,7 +370,9 @@ export default function BePartnerPage() {
                 id="number"
                 type="text"
                 value={formData.number}
-                onChange={(e) => setFormData((prev) => ({ ...prev, number: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, number: e.target.value }))
+                }
               />
             </div>
 
@@ -251,7 +386,12 @@ export default function BePartnerPage() {
                 type="text"
                 required
                 value={formData.postalCode}
-                onChange={(e) => setFormData((prev) => ({ ...prev, postalCode: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    postalCode: e.target.value,
+                  }))
+                }
               />
             </div>
 
@@ -264,11 +404,17 @@ export default function BePartnerPage() {
                 id="notes"
                 rows={3}
                 value={formData.notes}
-                onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                }
               ></textarea>
             </div>
 
-            <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Enviando..." : "Enviar interesse"}
             </button>
           </form>
