@@ -3,7 +3,6 @@ import styles from "./page.module.css";
 
 const adminSections = [
   { label: "Gestao de usuario", href: "/Admin/usuarios" },
-  { label: "Gestao de Parceiro", href: "/Admin/parceiros" },
   { label: "Gestao de Evento", href: "/Admin/eventos" },
   {
     label: "Receber formulario de Adocao e cadastrar/editar pessoa",
@@ -23,7 +22,7 @@ const adminSections = [
 ];
 
 const quickStats = [
-  { label: "Modulos ativos", value: "12" },
+  { label: "Modulos ativos", value: "11" },
   { label: "Fluxos integrados", value: "3" },
   { label: "Base operacional", value: "100%" },
 ];
