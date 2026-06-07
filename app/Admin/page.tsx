@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 
 const adminSections = [
   { label: "Gestao de usuario", href: "/Admin/usuarios" },
-  { label: "Gestao de Parceiro", href: "/Admin/parceiros" },
   { label: "Gestao de Evento", href: "/Admin/eventos" },
   { label: "Receber formulario de Adocao e cadastrar/editar pessoa", href: "/Admin/adocoes" },
   { label: "Receber formulario de Parceiro e cadastrar/editar pessoa", href: "/Admin/parcerias" },
@@ -21,7 +20,7 @@ const adminSections = [
 ];
 
 const quickStats = [
-  { label: "Modulos ativos", value: "12" },
+  { label: "Modulos ativos", value: "11" },
   { label: "Fluxos integrados", value: "3" },
   { label: "Base operacional", value: "100%" },
 ];

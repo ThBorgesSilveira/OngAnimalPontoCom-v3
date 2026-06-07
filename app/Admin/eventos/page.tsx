@@ -6,6 +6,16 @@ import type { AxiosError } from "axios";
 import { api } from "@/lib/api";
 import styles from "./page.module.css";
 
+type AddressItem = {
+  id: number;
+  state: string;
+  city: string;
+  district: string;
+  street: string;
+  number?: string | null;
+  postalCode: string;
+};
+
 type EventItem = {
   id: number;
   isActive: boolean;
@@ -13,15 +23,7 @@ type EventItem = {
   eventDate: string;
   eventType: string;
   notes?: string | null;
-  address?: {
-    id: number;
-    state?: string;
-    city?: string;
-    district?: string;
-    street?: string;
-    number?: string;
-    postalCode?: string;
-  };
+  address?: AddressItem;
 };
 
 type FormState = {
@@ -52,36 +54,95 @@ const initialForm: FormState = {
   isActive: true,
 };
 
+function formatAddress(address: AddressItem) {
+  return [address.street, address.number, address.district, address.city, address.state].filter(Boolean).join(", ");
+}
+
 export default function AdminEventosPage() {
   const [items, setItems] = useState<EventItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [addresses, setAddresses] = useState<AddressItem[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+  const [addressSearch, setAddressSearch] = useState("");
   const [form, setForm] = useState<FormState>(initialForm);
 
   async function loadItems() {
-    setLoading(true);
+    setLoadingEvents(true);
     try {
       const response = await api.get("/schedule-event/all");
       setItems(response.data);
     } catch {
       setError("Nao foi possivel carregar os eventos.");
     } finally {
-      setLoading(false);
+      setLoadingEvents(false);
+    }
+  }
+
+  async function loadAddresses() {
+    setLoadingAddresses(true);
+    try {
+      const response = await api.get("/address/all");
+      setAddresses(response.data);
+    } catch {
+      setError("Nao foi possivel carregar os enderecos.");
+    } finally {
+      setLoadingAddresses(false);
     }
   }
 
   useEffect(() => {
     loadItems();
+    loadAddresses();
   }, []);
 
   const isEditing = useMemo(() => editingId !== null, [editingId]);
 
+  const filteredAddresses = useMemo(() => {
+    const query = addressSearch.trim().toLowerCase();
+
+    if (!query) return addresses;
+
+    return addresses.filter((address) => {
+      const haystack = [
+        address.street,
+        address.number,
+        address.district,
+        address.city,
+        address.state,
+        address.postalCode,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return haystack.includes(query);
+    });
+  }, [addresses, addressSearch]);
+
   function resetForm() {
     setForm(initialForm);
     setEditingId(null);
+    setSelectedAddressId(null);
+    setAddressSearch("");
+  }
+
+  function fillFormWithAddress(address: AddressItem) {
+    setSelectedAddressId(address.id);
+    setAddressSearch(formatAddress(address));
+    setForm((prev) => ({
+      ...prev,
+      state: address.state ?? "",
+      city: address.city ?? "",
+      district: address.district ?? "",
+      street: address.street ?? "",
+      number: address.number ?? "",
+      postalCode: address.postalCode ?? "",
+    }));
   }
 
   function startEdit(item: EventItem) {
@@ -99,6 +160,8 @@ export default function AdminEventosPage() {
       postalCode: item.address?.postalCode ?? "",
       isActive: item.isActive,
     });
+    setSelectedAddressId(item.address?.id ?? null);
+    setAddressSearch(item.address ? formatAddress(item.address) : "");
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -108,40 +171,42 @@ export default function AdminEventosPage() {
     setError("");
 
     try {
-      const addressResponse = await api.post("/address", {
-        countryCode: "BR",
-        state: form.state,
-        city: form.city,
-        district: form.district,
-        street: form.street,
-        number: form.number,
-        postalCode: form.postalCode.replace(/\D/g, "").slice(0, 8),
-      });
+      let addressId = selectedAddressId;
+
+      if (!addressId) {
+        const addressResponse = await api.post("/address", {
+          countryCode: "BR",
+          state: form.state,
+          city: form.city,
+          district: form.district,
+          street: form.street,
+          number: form.number,
+          postalCode: form.postalCode.replace(/\D/g, "").slice(0, 8),
+        });
+
+        addressId = addressResponse.data.id;
+      }
+
+      const payload = {
+        name: form.name,
+        eventDate: form.eventDate,
+        eventType: form.eventType,
+        notes: form.notes,
+        isActive: form.isActive,
+        addressId,
+      };
 
       if (isEditing && editingId) {
-        await api.patch(`/schedule-event/${editingId}`, {
-          name: form.name,
-          eventDate: form.eventDate,
-          eventType: form.eventType,
-          notes: form.notes,
-          isActive: form.isActive,
-          addressId: addressResponse.data.id,
-        });
+        await api.patch(`/schedule-event/${editingId}`, payload);
         setMessage("Evento atualizado com sucesso.");
       } else {
-        await api.post("/schedule-event", {
-          name: form.name,
-          eventDate: form.eventDate,
-          eventType: form.eventType,
-          notes: form.notes,
-          isActive: form.isActive,
-          addressId: addressResponse.data.id,
-        });
+        await api.post("/schedule-event", payload);
         setMessage("Evento criado com sucesso.");
       }
 
       resetForm();
       await loadItems();
+      await loadAddresses();
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message?: string | string[] }>;
       const backendMessage = axiosError.response?.data?.message;
@@ -195,7 +260,11 @@ export default function AdminEventosPage() {
           <h2>{isEditing ? "Editar evento" : "Novo evento"}</h2>
 
           <label>Nome</label>
-          <input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} required />
+          <input
+            value={form.name}
+            onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+            required
+          />
 
           <label>Data do evento</label>
           <input
@@ -206,28 +275,116 @@ export default function AdminEventosPage() {
           />
 
           <label>Tipo de evento</label>
-          <input value={form.eventType} onChange={(e) => setForm((p) => ({ ...p, eventType: e.target.value }))} required />
+          <input
+            value={form.eventType}
+            onChange={(e) => setForm((p) => ({ ...p, eventType: e.target.value }))}
+            required
+          />
 
           <label>Observacoes</label>
-          <textarea rows={4} value={form.notes} onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))} />
+          <textarea
+            rows={4}
+            value={form.notes}
+            onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
+          />
 
-          <label>Estado</label>
-          <input value={form.state} onChange={(e) => setForm((p) => ({ ...p, state: e.target.value }))} required />
+          <div className={styles.addressBox}>
+            <div className={styles.addressBoxHeader}>
+              <h3>Endereco</h3>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={() => {
+                  setSelectedAddressId(null);
+                  setAddressSearch("");
+                }}
+              >
+                Usar novo endereco
+              </button>
+            </div>
 
-          <label>Cidade</label>
-          <input value={form.city} onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))} required />
+            <label>Pesquisar endereco cadastrado</label>
+            <input
+              value={addressSearch}
+              onChange={(e) => {
+                setAddressSearch(e.target.value);
+                setSelectedAddressId(null);
+              }}
+              placeholder="Rua, bairro, cidade, CEP..."
+            />
 
-          <label>Bairro</label>
-          <input value={form.district} onChange={(e) => setForm((p) => ({ ...p, district: e.target.value }))} required />
+            <div className={styles.addressResults}>
+              {loadingAddresses ? (
+                <p>Carregando enderecos...</p>
+              ) : filteredAddresses.length === 0 ? (
+                <p>Nenhum endereco encontrado.</p>
+              ) : (
+                filteredAddresses.slice(0, 8).map((address) => (
+                  <button
+                    type="button"
+                    key={address.id}
+                    className={`${styles.addressResult} ${
+                      selectedAddressId === address.id ? styles.addressResultSelected : ""
+                    }`}
+                    onClick={() => fillFormWithAddress(address)}
+                  >
+                    <strong>#{address.id}</strong>
+                    <span>{formatAddress(address)}</span>
+                    <small>CEP {address.postalCode}</small>
+                  </button>
+                ))
+              )}
+            </div>
 
-          <label>Rua</label>
-          <input value={form.street} onChange={(e) => setForm((p) => ({ ...p, street: e.target.value }))} required />
+            <div className={styles.selectedAddress}>
+              {selectedAddressId ? `Endereco selecionado: #${selectedAddressId}` : "Nenhum endereco selecionado."}
+            </div>
 
-          <label>Numero</label>
-          <input value={form.number} onChange={(e) => setForm((p) => ({ ...p, number: e.target.value }))} />
+            {!selectedAddressId && (
+              <div className={styles.manualAddressGrid}>
+                <label>Estado</label>
+                <input
+                  value={form.state}
+                  onChange={(e) => setForm((p) => ({ ...p, state: e.target.value }))}
+                  required
+                />
 
-          <label>CEP</label>
-          <input value={form.postalCode} onChange={(e) => setForm((p) => ({ ...p, postalCode: e.target.value }))} required />
+                <label>Cidade</label>
+                <input
+                  value={form.city}
+                  onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
+                  required
+                />
+
+                <label>Bairro</label>
+                <input
+                  value={form.district}
+                  onChange={(e) => setForm((p) => ({ ...p, district: e.target.value }))}
+                  required
+                />
+
+                <label>Rua</label>
+                <input
+                  value={form.street}
+                  onChange={(e) => setForm((p) => ({ ...p, street: e.target.value }))}
+                  required
+                />
+
+                <label>Numero</label>
+                <input
+                  value={form.number}
+                  onChange={(e) => setForm((p) => ({ ...p, number: e.target.value }))}
+                />
+
+                <label>CEP</label>
+                <input
+                  value={form.postalCode}
+                  onChange={(e) => setForm((p) => ({ ...p, postalCode: e.target.value }))}
+                  required
+                />
+              </div>
+            )}
+          </div>
 
           <label className={styles.checkboxRow}>
             <input
@@ -258,7 +415,7 @@ export default function AdminEventosPage() {
             </button>
           </div>
 
-          {loading ? (
+          {loadingEvents ? (
             <p>Carregando eventos...</p>
           ) : items.length === 0 ? (
             <p>Nenhum evento encontrado.</p>
