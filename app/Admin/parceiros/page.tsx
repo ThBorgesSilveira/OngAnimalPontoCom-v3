@@ -1,5 +1,6 @@
 "use client";
 
+import PrivateRoute from "@/app/Components/PrivateRoute";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { AxiosError } from "axios";
@@ -187,6 +188,7 @@ export default function AdminParceirosPage() {
   }
 
   return (
+  <PrivateRoute>  
     <main className={styles.page}>
       <section className={styles.hero}>
         <div className={styles.heroCopy}>
@@ -344,5 +346,6 @@ export default function AdminParceirosPage() {
         </section>
       </section>
     </main>
+  </PrivateRoute> 
   );
 }
