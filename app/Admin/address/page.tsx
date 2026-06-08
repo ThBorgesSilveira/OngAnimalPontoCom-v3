@@ -1,9 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import type { AxiosError } from "axios";
 import { api } from "@/lib/api";
+import styles from "./page.module.css";
 
-interface Address {
+type AddressItem = {
   id: number;
   countryCode: string;
   state: string;
@@ -13,658 +16,308 @@ interface Address {
   number?: string;
   complement?: string;
   postalCode: string;
-}
+};
 
-interface Person {
-  id: number;
-  name: string;
-  personType: "FISICA" | "JURIDICA";
-  cpfCnpj: string;
-  isActive: boolean;
-  addressId: number;
-}
+type FormState = {
+  countryCode: string;
+  state: string;
+  city: string;
+  district: string;
+  street: string;
+  number?: string;
+  complement?: string;
+  postalCode: string;
+};
 
-export default function AddressPage() {
-  const [addresses, setAddresses] = useState<Address[]>([]);
-  const [people, setPeople] = useState<Person[]>([]);
-  const [activeTab, setActiveTab] = useState<"address" | "person">("address");
-  
-  const [addressForm, setAddressForm] = useState({
-    countryCode: "BR",
-    state: "",
-    city: "",
-    district: "",
-    street: "",
-    number: "",
-    complement: "",
-    postalCode: "",
-  });
+const initialForm: FormState = {
+  countryCode: "BR",
+  state: "",
+  city: "",
+  district: "",
+  street: "",
+  number: "",
+  complement: "",
+  postalCode: "",
+};
 
-  const [personForm, setPersonForm] = useState({
-    name: "",
-    personType: "FISICA" as "FISICA" | "JURIDICA",
-    cpfCnpj: "",
-    isActive: true,
-    addressId: "",
-  });
+export default function AdminAddressPage() {
+  const [items, setItems] = useState<AddressItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [form, setForm] = useState<FormState>(initialForm);
 
-  const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
-  const [editingPersonId, setEditingPersonId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [messageType, setMessageType] = useState<"success" | "error">("success");
+  async function loadItems() {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await api.get("/address/all");
+      setItems(response.data);
+    } catch {
+      setError("Nao foi possivel carregar os enderecos.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    loadAddresses();
-    loadPeople();
+    loadItems();
   }, []);
 
-  async function loadAddresses() {
-    try {
-      const resp = await api.get("/address/all");
-      setAddresses(resp.data || []);
-    } catch (err) {
-      console.error("Erro ao carregar endereços:", err);
-    }
+  const isEditing = useMemo(() => editingId !== null, [editingId]);
+
+  function resetForm() {
+    setForm(initialForm);
+    setEditingId(null);
   }
 
-  async function loadPeople() {
-    try {
-      const resp = await api.get("/person/all");
-      setPeople(resp.data || []);
-    } catch (err) {
-      console.error("Erro ao carregar pessoas:", err);
-    }
-  }
-
-  function handleAddressChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) {
-    const { name, value } = e.target;
-    setAddressForm((s) => ({ ...s, [name]: value }));
-  }
-
-  function handlePersonChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) {
-    const { name, value } = e.target;
-    if (name === "isActive") {
-      setPersonForm((s) => ({ ...s, isActive: value === "true" }));
-    } else {
-      setPersonForm((s) => ({ ...s, [name]: value }));
-    }
-  }
-
-  function resetAddressForm() {
-    setAddressForm({
-      countryCode: "BR",
-      state: "",
-      city: "",
-      district: "",
-      street: "",
-      number: "",
-      complement: "",
-      postalCode: "",
+  function startEdit(item: AddressItem) {
+    setEditingId(item.id);
+    setForm({
+      countryCode: item.countryCode ?? "BR",
+      state: item.state ?? "",
+      city: item.city ?? "",
+      district: item.district ?? "",
+      street: item.street ?? "",
+      number: item.number ?? "",
+      complement: item.complement ?? "",
+      postalCode: item.postalCode ?? "",
     });
-    setEditingAddressId(null);
   }
 
-  function resetPersonForm() {
-    setPersonForm({
-      name: "",
-      personType: "FISICA",
-      cpfCnpj: "",
-      isActive: true,
-      addressId: "",
-    });
-    setEditingPersonId(null);
-  }
-
-  async function handleAddressSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    setMessage(null);
+    setSubmitting(true);
+    setMessage("");
+    setError("");
 
     try {
-      const payload = {
-        countryCode: addressForm.countryCode || "BR",
-        state: addressForm.state,
-        city: addressForm.city,
-        district: addressForm.district,
-        street: addressForm.street,
-        number: addressForm.number || undefined,
-        complement: addressForm.complement || undefined,
-        postalCode: addressForm.postalCode,
-      };
+      if (isEditing && editingId) {
+        const payload: Record<string, unknown> = {
+          countryCode: form.countryCode,
+          state: form.state,
+          city: form.city,
+          district: form.district,
+          street: form.street,
+          number: form.number || undefined,
+          complement: form.complement || undefined,
+          postalCode: form.postalCode,
+        };
 
-      if (editingAddressId) {
-        await api.put(`/address/${editingAddressId}`, payload);
-        setMessageType("success");
-        setMessage("Endereço atualizado com sucesso!");
+        await api.put(`/address/${editingId}`, payload);
+        setMessage("Endereco atualizado com sucesso.");
       } else {
-        await api.post("/address", payload);
-        setMessageType("success");
-        setMessage("Endereço criado com sucesso!");
+        await api.post("/address", {
+          countryCode: form.countryCode,
+          state: form.state,
+          city: form.city,
+          district: form.district,
+          street: form.street,
+          number: form.number || undefined,
+          complement: form.complement || undefined,
+          postalCode: form.postalCode,
+        });
+        setMessage("Endereco criado com sucesso.");
       }
 
-      resetAddressForm();
-      await loadAddresses();
-    } catch (err: any) {
-      console.error(err);
-      setMessageType("error");
-      setMessage(
-        err?.response?.data?.message || "Erro ao processar endereço"
-      );
+      resetForm();
+      await loadItems();
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ message?: string | string[] }>;
+      const backendMessage = axiosError.response?.data?.message;
+      setError(Array.isArray(backendMessage) ? backendMessage.join(" | ") : backendMessage ?? "Erro ao salvar endereco.");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   }
 
-  async function handlePersonSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setMessage(null);
+  async function handleDelete(id: number) {
+    if (!window.confirm("Deseja remover este endereco?")) return;
 
-    try {
-      const payload = {
-        name: personForm.name,
-        personType: personForm.personType,
-        cpfCnpj: personForm.cpfCnpj,
-        isActive: personForm.isActive,
-        addressId: parseInt(personForm.addressId as string),
-      };
-
-      if (editingPersonId) {
-        await api.patch(`/person/${editingPersonId}`, payload);
-        setMessageType("success");
-        setMessage("Pessoa atualizada com sucesso!");
-      } else {
-        await api.post("/person", payload);
-        setMessageType("success");
-        setMessage("Pessoa criada com sucesso!");
-      }
-
-      resetPersonForm();
-      await loadPeople();
-    } catch (err: any) {
-      console.error(err);
-      setMessageType("error");
-      setMessage(
-        err?.response?.data?.message || "Erro ao processar pessoa"
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function handleEditAddress(address: Address) {
-    setAddressForm({
-      countryCode: address.countryCode,
-      state: address.state,
-      city: address.city,
-      district: address.district,
-      street: address.street,
-      number: address.number || "",
-      complement: address.complement || "",
-      postalCode: address.postalCode,
-    });
-    setEditingAddressId(address.id);
-    setActiveTab("address");
-  }
-
-  function handleEditPerson(person: Person) {
-    setPersonForm({
-      name: person.name,
-      personType: person.personType,
-      cpfCnpj: person.cpfCnpj,
-      isActive: person.isActive,
-      addressId: person.addressId.toString(),
-    });
-    setEditingPersonId(person.id);
-    setActiveTab("person");
-  }
-
-  async function handleDeleteAddress(id: number) {
-    if (!confirm("Tem certeza que deseja deletar este endereço?")) {
-      return;
-    }
+    setMessage("");
+    setError("");
 
     try {
       await api.delete(`/address/${id}`);
-      setMessageType("success");
-      setMessage("Endereço deletado com sucesso!");
-      await loadAddresses();
-    } catch (err: any) {
-      console.error(err);
-      setMessageType("error");
-      setMessage(err?.response?.data?.message || "Erro ao deletar endereço");
-    }
-  }
-
-  async function handleDeletePerson(id: number) {
-    if (!confirm("Tem certeza que deseja deletar esta pessoa?")) {
-      return;
-    }
-
-    try {
-      await api.delete(`/person/${id}`);
-      setMessageType("success");
-      setMessage("Pessoa deletada com sucesso!");
-      await loadPeople();
-    } catch (err: any) {
-      console.error(err);
-      setMessageType("error");
-      setMessage(err?.response?.data?.message || "Erro ao deletar pessoa");
+      setMessage("Endereco removido com sucesso.");
+      await loadItems();
+    } catch {
+      setError("Nao foi possivel remover o endereco.");
     }
   }
 
   return (
-    <div style={{ maxWidth: 1000, margin: "0 auto", padding: 16 }}>
-      <h1>Gerenciar Endereços e Pessoas</h1>
+    <main className={styles.page}>
+      <section className={styles.hero}>
+        <div className={styles.heroCopy}>
+          <span className={styles.kicker}>ADM</span>
+          <h1>Gestao de enderecos</h1>
+          <p>
+            Cadastro de enderecos da ONG — pais, estado, cidade, bairro, rua, numero,
+            complemento e CEP.
+          </p>
+        </div>
+        <div className={styles.heroLinks}>
+          <Link className={styles.backLink} href="/Admin">
+            Voltar ao painel
+          </Link>
+        </div>
+      </section>
 
-      {/* Abas */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 16, borderBottom: "2px solid #ddd" }}>
-        <button
-          onClick={() => setActiveTab("address")}
-          style={{
-            padding: "8px 16px",
-            border: "none",
-            backgroundColor: activeTab === "address" ? "#0066cc" : "#f0f0f0",
-            color: activeTab === "address" ? "white" : "black",
-            cursor: "pointer",
-            borderRadius: "4px 4px 0 0",
-          }}
-        >
-          Endereços
-        </button>
-        <button
-          onClick={() => setActiveTab("person")}
-          style={{
-            padding: "8px 16px",
-            border: "none",
-            backgroundColor: activeTab === "person" ? "#0066cc" : "#f0f0f0",
-            color: activeTab === "person" ? "white" : "black",
-            cursor: "pointer",
-            borderRadius: "4px 4px 0 0",
-          }}
-        >
-          Pessoas
-        </button>
-      </div>
-
-      {/* Seção de Endereços */}
-      {activeTab === "address" && (
-        <>
-          {/* Formulário de Endereço */}
-          <div style={{ marginBottom: 32, padding: 16, border: "1px solid #ddd", borderRadius: 8 }}>
-            <h2>{editingAddressId ? "Editar Endereço" : "Novo Endereço"}</h2>
-
-            <form onSubmit={handleAddressSubmit} style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
-              <label style={{ gridColumn: "1 / -1" }}>
-                País
-                <select name="countryCode" value={addressForm.countryCode} onChange={handleAddressChange}>
-                  <option value="BR">Brasil</option>
-                  <option value="US">Estados Unidos</option>
-                </select>
-              </label>
-
-              <label>
-                Estado
-                <input
-                  name="state"
-                  value={addressForm.state}
-                  onChange={handleAddressChange}
-                  required
-                />
-              </label>
-
-              <label>
-                Cidade
-                <input
-                  name="city"
-                  value={addressForm.city}
-                  onChange={handleAddressChange}
-                  required
-                />
-              </label>
-
-              <label>
-                Bairro
-                <input
-                  name="district"
-                  value={addressForm.district}
-                  onChange={handleAddressChange}
-                  required
-                />
-              </label>
-
-              <label style={{ gridColumn: "1 / -1" }}>
-                Rua
-                <input
-                  name="street"
-                  value={addressForm.street}
-                  onChange={handleAddressChange}
-                  required
-                />
-              </label>
-
-              <label>
-                Número
-                <input
-                  name="number"
-                  value={addressForm.number}
-                  onChange={handleAddressChange}
-                />
-              </label>
-
-              <label>
-                Complemento
-                <input
-                  name="complement"
-                  value={addressForm.complement}
-                  onChange={handleAddressChange}
-                />
-              </label>
-
-              <label style={{ gridColumn: "1 / -1" }}>
-                CEP
-                <input
-                  name="postalCode"
-                  value={addressForm.postalCode}
-                  onChange={handleAddressChange}
-                  required
-                />
-              </label>
-
-              <div style={{ gridColumn: "1 / -1", display: "flex", gap: 8 }}>
-                <button type="submit" disabled={loading}>
-                  {loading
-                    ? "Enviando..."
-                    : editingAddressId
-                    ? "Atualizar"
-                    : "Criar endereço"}
-                </button>
-                {editingAddressId && (
-                  <button
-                    type="button"
-                    onClick={resetAddressForm}
-                    style={{ backgroundColor: "#666" }}
-                  >
-                    Cancelar
-                  </button>
-                )}
-              </div>
-            </form>
-
-            {message && (
-              <div
-                style={{
-                  marginTop: 12,
-                  padding: 12,
-                  backgroundColor: messageType === "success" ? "#d4edda" : "#f8d7da",
-                  color: messageType === "success" ? "#155724" : "#721c24",
-                  borderRadius: 4,
-                }}
-              >
-                {message}
-              </div>
-            )}
-          </div>
-
-          {/* Lista de Endereços */}
-          <div>
-            <h2>Endereços ({addresses.length})</h2>
-
-            {addresses.length === 0 ? (
-              <p>Nenhum endereço cadastrado.</p>
-            ) : (
-              <div style={{ display: "grid", gap: 12 }}>
-                {addresses.map((addr) => (
-                  <div
-                    key={addr.id}
-                    style={{
-                      padding: 12,
-                      border: "1px solid #ddd",
-                      borderRadius: 4,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <div>
-                      <strong>
-                        {addr.street}, {addr.number || "s/n"}
-                      </strong>
-                      <br />
-                      {addr.complement && (
-                        <>
-                          {addr.complement}
-                          <br />
-                        </>
-                      )}
-                      {addr.district} - {addr.city}, {addr.state} - {addr.postalCode}
-                      <br />
-                      <small>ID: {addr.id}</small>
-                    </div>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button
-                        onClick={() => handleEditAddress(addr)}
-                        style={{ backgroundColor: "#0066cc" }}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => handleDeleteAddress(addr.id)}
-                        style={{ backgroundColor: "#cc0000" }}
-                      >
-                        Deletar
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </>
+      {(message || error) && (
+        <div className={message ? styles.successBox : styles.errorBox}>{message || error}</div>
       )}
 
-      {/* Seção de Pessoas */}
-      {activeTab === "person" && (
-        <>
-          {/* Formulário de Pessoa */}
-          <div style={{ marginBottom: 32, padding: 16, border: "1px solid #ddd", borderRadius: 8 }}>
-            <h2>{editingPersonId ? "Editar Pessoa" : "Nova Pessoa"}</h2>
+      <section className={styles.grid}>
+        <form className={styles.formCard} onSubmit={handleSubmit}>
+          <h2>{isEditing ? "Editar endereco" : "Novo endereco"}</h2>
 
-            <form onSubmit={handlePersonSubmit} style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
-              <label style={{ gridColumn: "1 / -1" }}>
-                Nome
-                <input
-                  name="name"
-                  value={personForm.name}
-                  onChange={handlePersonChange}
-                  required
-                />
-              </label>
+          <label>Pais *</label>
+          <select
+            value={form.countryCode}
+            onChange={(e) => setForm((p) => ({ ...p, countryCode: e.target.value }))}
+            required
+          >
+            <option value="BR">Brasil</option>
+            <option value="US">Estados Unidos</option>
+            <option value="AR">Argentina</option>
+            <option value="CL">Chile</option>
+            <option value="CO">Colombia</option>
+          </select>
 
-              <label>
-                Tipo de Pessoa
-                <select
-                  name="personType"
-                  value={personForm.personType}
-                  onChange={handlePersonChange}
-                >
-                  <option value="FISICA">Pessoa Física</option>
-                  <option value="JURIDICA">Pessoa Jurídica</option>
-                </select>
-              </label>
+          <label>Estado *</label>
+          <input
+            type="text"
+            value={form.state}
+            onChange={(e) => setForm((p) => ({ ...p, state: e.target.value }))}
+            required
+            maxLength={50}
+            placeholder="Ex: Sao Paulo, Rio de Janeiro"
+          />
 
-              <label>
-                CPF / CNPJ
-                <input
-                  name="cpfCnpj"
-                  value={personForm.cpfCnpj}
-                  onChange={handlePersonChange}
-                  placeholder="Ex: 123.456.789-00"
-                  required
-                />
-              </label>
+          <label>Cidade *</label>
+          <input
+            type="text"
+            value={form.city}
+            onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
+            required
+            maxLength={100}
+            placeholder="Ex: Sao Paulo, Rio de Janeiro"
+          />
 
-              <label>
-                Endereço
-                <select
-                  name="addressId"
-                  value={personForm.addressId}
-                  onChange={handlePersonChange}
-                  required
-                >
-                  <option value="">Selecione um endereço</option>
-                  {addresses.map((addr) => (
-                    <option key={addr.id} value={addr.id}>
-                      {addr.street}, {addr.number || "s/n"} - {addr.city}
-                    </option>
-                  ))}
-                </select>
-              </label>
+          <label>Bairro *</label>
+          <input
+            type="text"
+            value={form.district}
+            onChange={(e) => setForm((p) => ({ ...p, district: e.target.value }))}
+            required
+            maxLength={100}
+            placeholder="Ex: Pinheiros, Centro"
+          />
 
-              <label>
-                Ativo
-                <select
-                  name="isActive"
-                  value={personForm.isActive.toString()}
-                  onChange={handlePersonChange}
-                >
-                  <option value="true">Sim</option>
-                  <option value="false">Não</option>
-                </select>
-              </label>
+          <label>Rua *</label>
+          <input
+            type="text"
+            value={form.street}
+            onChange={(e) => setForm((p) => ({ ...p, street: e.target.value }))}
+            required
+            maxLength={255}
+            placeholder="Ex: Avenida Paulista"
+          />
 
-              <div style={{ gridColumn: "1 / -1", display: "flex", gap: 8 }}>
-                <button type="submit" disabled={loading}>
-                  {loading
-                    ? "Enviando..."
-                    : editingPersonId
-                    ? "Atualizar"
-                    : "Criar pessoa"}
-                </button>
-                {editingPersonId && (
-                  <button
-                    type="button"
-                    onClick={resetPersonForm}
-                    style={{ backgroundColor: "#666" }}
-                  >
-                    Cancelar
-                  </button>
-                )}
-              </div>
-            </form>
+          <label>Numero</label>
+          <input
+            type="text"
+            value={form.number}
+            onChange={(e) => setForm((p) => ({ ...p, number: e.target.value }))}
+            maxLength={20}
+            placeholder="Ex: 100"
+          />
 
-            {message && (
-              <div
-                style={{
-                  marginTop: 12,
-                  padding: 12,
-                  backgroundColor: messageType === "success" ? "#d4edda" : "#f8d7da",
-                  color: messageType === "success" ? "#155724" : "#721c24",
-                  borderRadius: 4,
-                }}
-              >
-                {message}
-              </div>
+          <label>Complemento</label>
+          <input
+            type="text"
+            value={form.complement}
+            onChange={(e) => setForm((p) => ({ ...p, complement: e.target.value }))}
+            maxLength={100}
+            placeholder="Ex: Apto 101, Sala 5"
+          />
+
+          <label>CEP *</label>
+          <input
+            type="text"
+            value={form.postalCode}
+            onChange={(e) => setForm((p) => ({ ...p, postalCode: e.target.value }))}
+            required
+            maxLength={20}
+            placeholder="Ex: 01311-100"
+          />
+
+          <div className={styles.actions}>
+            {isEditing && (
+              <button type="button" className={styles.secondaryButton} onClick={resetForm}>
+                Cancelar edicao
+              </button>
             )}
+            <button type="submit" className={styles.primaryButton} disabled={submitting}>
+              {submitting ? "Salvando..." : isEditing ? "Salvar alteracoes" : "Cadastrar"}
+            </button>
+          </div>
+        </form>
+
+        <section className={styles.listCard}>
+          <div className={styles.listHeader}>
+            <h2>Enderecos cadastrados</h2>
+            <button type="button" className={styles.refreshButton} onClick={loadItems}>
+              Atualizar
+            </button>
           </div>
 
-          {/* Lista de Pessoas */}
-          <div>
-            <h2>Pessoas ({people.length})</h2>
-
-            {people.length === 0 ? (
-              <p>Nenhuma pessoa cadastrada.</p>
-            ) : (
-              <div style={{ display: "grid", gap: 12 }}>
-                {people.map((person) => {
-                  const addr = addresses.find((a) => a.id === person.addressId);
-                  return (
-                    <div
-                      key={person.id}
-                      style={{
-                        padding: 12,
-                        border: "1px solid #ddd",
-                        borderRadius: 4,
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <div>
-                        <strong>{person.name}</strong>
-                        <br />
-                        Tipo: {person.personType === "FISICA" ? "Pessoa Física" : "Pessoa Jurídica"}
-                        <br />
-                        CPF/CNPJ: {person.cpfCnpj}
-                        <br />
-                        Endereço: {addr ? `${addr.street}, ${addr.number || "s/n"} - ${addr.city}` : "Endereço não encontrado"}
-                        <br />
-                        Status: {person.isActive ? "✓ Ativo" : "✗ Inativo"}
-                        <br />
-                        <small>ID: {person.id}</small>
-                      </div>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <button
-                          onClick={() => handleEditPerson(person)}
-                          style={{ backgroundColor: "#0066cc" }}
-                        >
+          {loading ? (
+            <p>Carregando enderecos...</p>
+          ) : items.length === 0 ? (
+            <p>Nenhum endereco encontrado.</p>
+          ) : (
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Rua</th>
+                    <th>Numero</th>
+                    <th>Cidade</th>
+                    <th>Estado</th>
+                    <th>CEP</th>
+                    <th>Acoes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.id}</td>
+                      <td>{item.street}</td>
+                      <td>{item.number || "-"}</td>
+                      <td>{item.city}</td>
+                      <td>{item.state}</td>
+                      <td>{item.postalCode}</td>
+                      <td className={styles.rowActions}>
+                        <button type="button" onClick={() => startEdit(item)}>
                           Editar
                         </button>
-                        <button
-                          onClick={() => handleDeletePerson(person.id)}
-                          style={{ backgroundColor: "#cc0000" }}
-                        >
-                          Deletar
+                        <button type="button" onClick={() => handleDelete(item.id)}>
+                          Excluir
                         </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
-      <style>{`
-        label {
-          display: flex;
-          flex-direction: column;
-          font-weight: 500;
-          gap: 4px;
-        }
-
-        input, select {
-          padding: 8px;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          font-size: 14px;
-        }
-
-        button {
-          padding: 8px 16px;
-          border: none;
-          border-radius: 4px;
-          background-color: #28a745;
-          color: white;
-          cursor: pointer;
-          font-size: 14px;
-        }
-
-        button:hover {
-          opacity: 0.9;
-        }
-
-        button:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-      `}</style>
-    </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      </section>
+    </main>
   );
 }
