@@ -105,105 +105,12 @@
 }
 
 .formCard input,
-.formCard textarea {
+.formCard select {
   width: 100%;
   padding: 0.8rem 0.9rem;
   border-radius: 12px;
   border: 1px solid rgba(138, 43, 226, 0.18);
   font-family: Lato, sans-serif;
-}
-
-.addressBox {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem;
-  border-radius: 18px;
-  background: rgba(138, 43, 226, 0.05);
-  border: 1px solid rgba(138, 43, 226, 0.1);
-}
-
-.addressBoxHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.addressBoxHeader h3 {
-  font-size: 1.05rem;
-  color: #24123a;
-}
-
-.addressResults {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.65rem;
-  max-height: 260px;
-  overflow: auto;
-}
-
-.addressResult {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.2rem;
-  padding: 0.85rem 0.95rem;
-  border-radius: 14px;
-  border: 1px solid rgba(138, 43, 226, 0.12);
-  background: #fff;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    border-color 0.15s ease;
-}
-
-.addressResult:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(58, 20, 90, 0.08);
-}
-
-.addressResultSelected {
-  border-color: var(--purple);
-  box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.12);
-}
-
-.addressResult strong {
-  color: var(--purple);
-}
-
-.addressResult span {
-  color: #24123a;
-  font-family: Lato, sans-serif;
-  font-weight: 700;
-}
-
-.addressResult small {
-  color: #666;
-  font-family: Lato, sans-serif;
-}
-
-.selectedAddress {
-  padding: 0.75rem 0.9rem;
-  border-radius: 12px;
-  background: #fff;
-  border: 1px dashed rgba(138, 43, 226, 0.25);
-  font-family: Lato, sans-serif;
-  color: #4a2668;
-}
-
-.manualAddressGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
-}
-
-.manualAddressGrid label {
-  margin-top: 0.25rem;
 }
 
 .checkboxRow {

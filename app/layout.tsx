@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Script from "next/script"
 import Header from "./Components/Layout/Header"
+import Providers from "./Providers"
 
 export const metadata: Metadata = {
   title: "AnimalPontoCom",
@@ -39,11 +40,11 @@ export default function RootLayout({
         
         <Header />
 
-        <section className="hero">
-
-          {children}
-
-        </section>
+        <Providers>
+          <section className="hero">
+            {children}
+          </section>
+        </Providers>
 
       <div className="lowerBar"></div>      </body>
     </html>
