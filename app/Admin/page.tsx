@@ -18,11 +18,7 @@ const adminSections = [
 
 const quickStats = [
   { label: "Modulos ativos", value: "11" },
-<<<<<<< HEAD
   { label: "Fluxos integrados", value: "3" },
-=======
-  { label: "Fluxos integrados", value: "3" },
->>>>>>> 5bf16ef0bb4f421e1e7e5ad542832c629b9cb74e
   { label: "Base operacional", value: "100%" },
 ];
 
