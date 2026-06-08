@@ -5,11 +5,14 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { AxiosError } from "axios";
 import { api } from "@/lib/api";
+import { PersonType } from "@/lib/enums/person-type";
+import { PartnerType } from "@/lib/enums/partner-type";
 import styles from "./page.module.css";
 
 type PartnerItem = {
   id: number;
   isActive: boolean;
+  partnershipType?: PartnerType;
   notes?: string | null;
   corporateName?: string | null;
   tradeName?: string | null;
@@ -18,6 +21,7 @@ type PartnerItem = {
     id: number;
     name: string;
     cpfCnpj: string;
+    personType?: PersonType;
     address?: {
       id: number;
       state?: string;
@@ -31,6 +35,8 @@ type PartnerItem = {
 };
 
 type FormState = {
+  personType: PersonType;
+  partnershipType: PartnerType;
   name: string;
   cpfCnpj: string;
   state: string;
@@ -47,6 +53,8 @@ type FormState = {
 
 const initialForm: FormState = {
   name: "",
+  personType: PersonType.FISICA,
+  partnershipType: PartnerType.RECURRING_DONATION,
   cpfCnpj: "",
   state: "",
   city: "",
@@ -98,6 +106,8 @@ export default function AdminParceirosPage() {
     setEditingId(item.id);
     setForm({
       name: item.person?.name ?? "",
+      personType: item.person?.personType ?? PersonType.FISICA,
+      partnershipType: item.partnershipType ?? PartnerType.RECURRING_DONATION,
       cpfCnpj: item.person?.cpfCnpj ?? "",
       state: item.person?.address?.state ?? "",
       city: item.person?.address?.city ?? "",
@@ -123,6 +133,7 @@ export default function AdminParceirosPage() {
         await api.patch(`/partner/${editingId}`, {
           person: {
             name: form.name,
+            personType: form.personType,
             cpfCnpj: form.cpfCnpj,
             address: {
               state: form.state,
@@ -133,6 +144,7 @@ export default function AdminParceirosPage() {
               postalCode: form.postalCode,
             },
           },
+          partnershipType: form.partnershipType,
           corporateName: form.corporateName,
           tradeName: form.tradeName,
           notes: form.notes,
@@ -143,6 +155,7 @@ export default function AdminParceirosPage() {
         await api.post("/partner", {
           person: {
             name: form.name,
+            personType: form.personType,
             cpfCnpj: form.cpfCnpj,
             address: {
               state: form.state,
@@ -153,6 +166,7 @@ export default function AdminParceirosPage() {
               postalCode: form.postalCode,
             },
           },
+          partnershipType: form.partnershipType,
           corporateName: form.corporateName,
           tradeName: form.tradeName,
           notes: form.notes,
@@ -222,6 +236,19 @@ export default function AdminParceirosPage() {
             onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
             required
           />
+
+          <label>Tipo de pessoa</label>
+          <select value={form.personType} onChange={(e) => setForm((p) => ({ ...p, personType: e.target.value as PersonType }))}>
+            <option value={PersonType.FISICA}>FISICA</option>
+            <option value={PersonType.JURIDICA}>JURIDICA</option>
+          </select>
+
+          <label>Tipo de parceria</label>
+          <select value={form.partnershipType} onChange={(e) => setForm((p) => ({ ...p, partnershipType: e.target.value as PartnerType }))}>
+            <option value={PartnerType.RECURRING_DONATION}>{PartnerType.RECURRING_DONATION}</option>
+            <option value={PartnerType.EVENT_SPONSOR}>{PartnerType.EVENT_SPONSOR}</option>
+            <option value={PartnerType.CORPORATE_VOLUNTEERING}>{PartnerType.CORPORATE_VOLUNTEERING}</option>
+          </select>
 
           <label>CPF/CNPJ</label>
           <input
@@ -316,6 +343,8 @@ export default function AdminParceirosPage() {
                     <th>ID</th>
                     <th>Pessoa</th>
                     <th>CPF/CNPJ</th>
+                    <th>Tipo de parceria</th>
+                    <th>Tipo de pessoa</th>
                     <th>Nome fantasia</th>
                     <th>Ativo</th>
                     <th>Acoes</th>
@@ -327,6 +356,8 @@ export default function AdminParceirosPage() {
                       <td>{item.id}</td>
                       <td>{item.person?.name ?? "-"}</td>
                       <td>{item.person?.cpfCnpj ?? "-"}</td>
+                      <td>{item.partnershipType ?? "-"}</td>
+                      <td>{item.person?.personType ?? "-"}</td>
                       <td>{item.tradeName ?? "-"}</td>
                       <td>{item.isActive ? "Sim" : "Nao"}</td>
                       <td className={styles.rowActions}>
