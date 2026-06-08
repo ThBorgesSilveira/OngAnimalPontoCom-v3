@@ -90,6 +90,7 @@ export default function RegularAdoption() {
   const [fetchError, setFetchError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [petName, setPetName] = useState("");
+  const [selectedPetId, setSelectedPetId] = useState<number | null>(null);
   const [successMessage, setSuccessMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -116,11 +117,14 @@ export default function RegularAdoption() {
   function closeForm() {
     setShowForm(false);
     setErrorMessage("");
+    setPetName("");
+    setSelectedPetId(null);
     setFormData(initialForm);
   }
 
-  function openForm(name: string) {
+  function openForm(id: number, name: string) {
     setPetName(name);
+    setSelectedPetId(id);
     setErrorMessage("");
     setShowForm(true);
   }
@@ -158,18 +162,13 @@ export default function RegularAdoption() {
         },
       });
 
-      const animalsResponse = await api.get("/animal/all");
-      const animal = (
-        animalsResponse.data as Array<{ id: number; name: string }>
-      ).find((item) => item.name.toLowerCase() === petName.toLowerCase());
-
-      if (!animal) {
-        throw new Error(`Animal ${petName} não encontrado no banco.`);
+      if (selectedPetId === null) {
+        throw new Error("Animal selecionado inválido.");
       }
 
       await api.post("/adoption-request", {
         personId: person.id,
-        animalId: animal.id,
+        animalId: selectedPetId,
         notes: [
           formData.notes,
           formData.email ? `Email: ${formData.email}` : "",
@@ -261,7 +260,7 @@ export default function RegularAdoption() {
 
                 <button
                   className={styles.adoptButton}
-                  onClick={() => openForm(pet.name)}
+                  onClick={() => openForm(pet.id, pet.name)}
                 >
                   Adotar
                 </button>

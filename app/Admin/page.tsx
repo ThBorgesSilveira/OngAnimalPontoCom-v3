@@ -5,12 +5,9 @@ import styles from "./page.module.css";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
-
 const adminSections = [
   { label: "Gestao de usuario", href: "/Admin/usuarios" },
   { label: "Gestao de Evento", href: "/Admin/eventos" },
-  { label: "Receber formulario de Adocao e cadastrar/editar pessoa", href: "/Admin/adocoes" },
-  { label: "Receber formulario de Parceiro e cadastrar/editar pessoa", href: "/Admin/parcerias" },
   { label: "Gestao de Voluntario", href: "/Admin/voluntarios" },
   { label: "Gestao de Pessoas", href: "/Admin/pessoas" },
   { label: "Gestao de Enderecos", href: "/Admin/enderecos" },
@@ -42,7 +39,18 @@ export default function AdminPage() {
             <span className={styles.kicker}>Painel ADM</span>
             <h1>Centro de controle da operacao</h1>
             <p>Bem-vindo, {user?.email || "Administrador"}!</p>
-            <button onClick={handleLogout} style={{ marginTop: "1rem", padding: "0.5rem 1.5rem", background: "#7c3aed", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer" }}>
+            <button
+              onClick={handleLogout}
+              style={{
+                marginTop: "1rem",
+                padding: "0.5rem 1.5rem",
+                background: "#7c3aed",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
               Sair
             </button>
           </div>
@@ -60,15 +68,25 @@ export default function AdminPage() {
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2>Areas de gestao</h2>
-            <p>Escolha o modulo desejado para administrar os dados do sistema.</p>
+            <p>
+              Escolha o modulo desejado para administrar os dados do sistema.
+            </p>
           </div>
 
           <div className={styles.cardGrid}>
             {adminSections.map((section, index) => (
-              <article key={`${section.label}-${index}`} className={styles.card}>
-                <span className={styles.cardIndex}>{String(index + 1).padStart(2, "0")}</span>
+              <article
+                key={`${section.label}-${index}`}
+                className={styles.card}
+              >
+                <span className={styles.cardIndex}>
+                  {String(index + 1).padStart(2, "0")}
+                </span>
                 <h3>{section.label}</h3>
-                <p>Acesso para visualizar, cadastrar, editar e acompanhar registros ligados a este modulo.</p>
+                <p>
+                  Acesso para visualizar, cadastrar, editar e acompanhar
+                  registros ligados a este modulo.
+                </p>
                 <Link className={styles.cardButton} href={section.href}>
                   Abrir modulo
                 </Link>
