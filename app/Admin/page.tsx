@@ -18,13 +18,12 @@ const adminSections = [
   { label: "Gestao de Enderecos", href: "/Admin/enderecos" },
   { label: "Gestao de Animal", href: "/Admin/animais" },
   { label: "Gestao de Adotante", href: "/Admin/adotantes" },
-  { label: "Gestao de Parceiro", href: "/Admin/parceiros" },
   { label: "Gestao de Doacoes", href: "/Admin/doacoes" },
 ];
 
 const quickStats = [
-  { label: "Modulos ativos", value: "12" },
-  { label: "Fluxos integrados", value: "3" },
+  { label: "Modulos ativos", value: "11" },
+  { label: "Fluxos integrados", value: "5" },
   { label: "Base operacional", value: "100%" },
 ];
 
