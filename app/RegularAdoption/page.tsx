@@ -5,44 +5,20 @@ import { api, createPersonWithAddress } from "@/lib/api";
 import { PersonType } from "@/lib/enums/person-type";
 import type { AxiosError } from "axios";
 
-const pets = [
-  {
-    name: "Rex",
-    idade: "3 meses",
-    porte: "Medio",
-    temp: "brincalhao e carinhoso",
-    img: "rex.jpg",
-    rescue: true,
-  },
-  {
-    name: "Luna",
-    idade: "2 meses",
-    porte: "Pequeno",
-    temp: "docil e brincalhona",
-    img: "luna.jpg",
-  },
-  {
-    name: "Thor",
-    idade: "1 ano",
-    porte: "Grande",
-    temp: "protetor e leal",
-    img: "thor.jpg",
-  },
-  {
-    name: "Nina",
-    idade: "6 meses",
-    porte: "Medio",
-    temp: "tranquila e carinhosa",
-    img: "nina.jpg",
-  },
-  {
-    name: "Bidu",
-    idade: "4 meses",
-    porte: "Pequeno",
-    temp: "brincalhao",
-    img: "bidu.jpg",
-  },
-];
+type Animal = {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  isActive: boolean;
+  name: string;
+  birthDate: string;
+  size: string;
+  temperament: string;
+  rescueDate: string | null;
+  notes: string;
+  photoUrl: string | null;
+};
 
 type FormData = {
   fullName: string;
@@ -78,13 +54,64 @@ const initialForm: FormData = {
   postalCode: "",
 };
 
+function getAgeLabel(birthDate: string) {
+  const birth = new Date(birthDate);
+  if (Number.isNaN(birth.getTime())) {
+    return "Idade desconhecida";
+  }
+
+  const today = new Date();
+  let years = today.getFullYear() - birth.getFullYear();
+  let months = today.getMonth() - birth.getMonth();
+
+  if (today.getDate() < birth.getDate()) {
+    months -= 1;
+  }
+
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  if (years > 0) {
+    return years === 1 ? "1 ano" : `${years} anos`;
+  }
+
+  if (months > 0) {
+    return months === 1 ? "1 mês" : `${months} meses`;
+  }
+
+  return "Menos de 1 mês";
+}
+
 export default function RegularAdoption() {
+  const [pets, setPets] = useState<Animal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [petName, setPetName] = useState("");
   const [successMessage, setSuccessMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>(initialForm);
+
+  useEffect(() => {
+    async function loadAnimals() {
+      try {
+        const response = await api.get<Animal[]>("/animal/all");
+        setPets(response.data);
+      } catch (error) {
+        console.error(error);
+        setFetchError(
+          "Não foi possível carregar os animais. Atualize a página.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadAnimals();
+  }, []);
 
   function closeForm() {
     setShowForm(false);
@@ -137,7 +164,7 @@ export default function RegularAdoption() {
       ).find((item) => item.name.toLowerCase() === petName.toLowerCase());
 
       if (!animal) {
-        throw new Error(`Animal ${petName} nao encontrado no banco.`);
+        throw new Error(`Animal ${petName} não encontrado no banco.`);
       }
 
       await api.post("/adoption-request", {
@@ -172,7 +199,7 @@ export default function RegularAdoption() {
         setErrorMessage(
           backendMessage ??
             (error as Error).message ??
-            "Erro ao enviar formulario.",
+            "Erro ao enviar formulário.",
         );
       }
     } finally {
@@ -196,33 +223,52 @@ export default function RegularAdoption() {
           </div>
         </section>
 
-        {pets.map((pet) => (
-          <div key={pet.name} className={styles.petCard}>
-            <img
-              src={`/images/${pet.img}`}
-              alt={pet.name}
-              className={styles.petImage}
-            />
+        {loading && (
+          <div className={styles.successBox}>Carregando animais...</div>
+        )}
 
-            <div className={styles.petInfo}>
-              <h3>{pet.name}</h3>
-              <p>Idade: {pet.idade}</p>
-              <p>Porte: {pet.porte}</p>
-              <p>Temperamento: {pet.temp}</p>
-
-              {pet.rescue && (
-                <p className={styles.rescueText}>Resgatado ha um mes</p>
-              )}
-
-              <button
-                className={styles.adoptButton}
-                onClick={() => openForm(pet.name)}
-              >
-                Adotar
-              </button>
-            </div>
+        {fetchError && (
+          <div className={styles.successBox}>
+            Erro ao carregar animais: {fetchError}
           </div>
-        ))}
+        )}
+
+        {!loading && !fetchError && pets.length === 0 && (
+          <div className={styles.successBox}>
+            Nenhum animal disponível no momento.
+          </div>
+        )}
+
+        {pets.map((pet) => {
+          const imageSrc = pet.photoUrl || `${pet.photoUrl?.toLowerCase()}`;
+
+          return (
+            <div key={pet.id} className={styles.petCard}>
+              <img src={imageSrc} alt={pet.name} className={styles.petImage} />
+
+              <div className={styles.petInfo}>
+                <h3>{pet.name}</h3>
+                <p>Idade: {getAgeLabel(pet.birthDate)}</p>
+                <p>Porte: {pet.size}</p>
+                <p>Temperamento: {pet.temperament}</p>
+
+                {pet.rescueDate && (
+                  <p className={styles.rescueText}>
+                    Resgatado em{" "}
+                    {new Date(pet.rescueDate).toLocaleDateString("pt-BR")}
+                  </p>
+                )}
+
+                <button
+                  className={styles.adoptButton}
+                  onClick={() => openForm(pet.name)}
+                >
+                  Adotar
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </main>
 
       {successMessage && (
@@ -234,14 +280,16 @@ export default function RegularAdoption() {
       )}
 
       {errorMessage && (
-        <div className={styles.successBox}>Erro ao enviar: {errorMessage}</div>
+        <div className={styles.successBox}>
+          Erro ao enviar formulário: {errorMessage}
+        </div>
       )}
 
       {showForm && (
         <div className={styles.modalOverlay} onClick={closeForm}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>Formulario de Adocao - {petName}</h2>
+              <h2>Formulário de Adoção - {petName}</h2>
 
               <button className={styles.closeButton} onClick={closeForm}>
                 X
@@ -382,7 +430,7 @@ export default function RegularAdoption() {
                 }
               />
 
-              <label>Numero</label>
+              <label>Número</label>
               <input
                 type="text"
                 value={formData.number}

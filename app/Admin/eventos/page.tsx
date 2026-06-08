@@ -1,5 +1,5 @@
 "use client";
-
+import PrivateRoute from "@/app/Components/PrivateRoute";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { AxiosError } from "axios";
@@ -232,6 +232,9 @@ export default function AdminEventosPage() {
   }
 
   return (
+
+      
+  <PrivateRoute>
     <main className={styles.page}>
       <section className={styles.hero}>
         <div className={styles.heroCopy}>
@@ -456,5 +459,6 @@ export default function AdminEventosPage() {
         </section>
       </section>
     </main>
+  </PrivateRoute>
   );
 }
