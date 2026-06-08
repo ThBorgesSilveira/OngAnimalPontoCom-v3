@@ -94,7 +94,7 @@ export default function AdminUsuariosPage() {
         }
 
         await api.patch(`/user/${editingId}`, payload);
-        setMessage("Usuario atualizado com sucesso.");
+        setMessage("Usuário atualizado com sucesso.");
       } else {
         await api.post("/user", {
           name: form.name,
@@ -103,7 +103,7 @@ export default function AdminUsuariosPage() {
           role: form.role,
           isActive: form.isActive,
         });
-        setMessage("Usuario criado com sucesso.");
+        setMessage("Usuário criado com sucesso.");
       }
 
       resetForm();
@@ -111,24 +111,28 @@ export default function AdminUsuariosPage() {
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message?: string | string[] }>;
       const backendMessage = axiosError.response?.data?.message;
-      setError(Array.isArray(backendMessage) ? backendMessage.join(" | ") : backendMessage ?? "Erro ao salvar usuario.");
+      setError(
+        Array.isArray(backendMessage)
+          ? backendMessage.join(" | ")
+          : (backendMessage ?? "Erro ao salvar usuário."),
+      );
     } finally {
       setSubmitting(false);
     }
   }
 
   async function handleDelete(id: number) {
-    if (!window.confirm("Deseja remover este usuario?")) return;
+    if (!window.confirm("Deseja remover este usuário?")) return;
 
     setMessage("");
     setError("");
 
     try {
       await api.delete(`/user/${id}`);
-      setMessage("Usuario removido com sucesso.");
+      setMessage("Usuário removido com sucesso.");
       await loadItems();
     } catch {
-      setError("Nao foi possivel remover o usuario.");
+      setError("Nao foi possivel remover o usuário.");
     }
   }
 
@@ -137,10 +141,10 @@ export default function AdminUsuariosPage() {
       <section className={styles.hero}>
         <div className={styles.heroCopy}>
           <span className={styles.kicker}>ADM</span>
-          <h1>Gestao de usuario</h1>
+          <h1>Gestão de usuário</h1>
           <p>
-            Cadastro dos usuarios que acessam o painel administrativo, com nome, email, senha,
-            perfil e status.
+            Cadastro dos usuários que acessam o painel administrativo, com nome,
+            email, senha, perfil e status.
           </p>
         </div>
         <div className={styles.heroLinks}>
@@ -151,12 +155,14 @@ export default function AdminUsuariosPage() {
       </section>
 
       {(message || error) && (
-        <div className={message ? styles.successBox : styles.errorBox}>{message || error}</div>
+        <div className={message ? styles.successBox : styles.errorBox}>
+          {message || error}
+        </div>
       )}
 
       <section className={styles.grid}>
         <form className={styles.formCard} onSubmit={handleSubmit}>
-          <h2>{isEditing ? "Editar usuario" : "Novo usuario"}</h2>
+          <h2>{isEditing ? "Editar usuário" : "Novo usuário"}</h2>
 
           <label>Nome</label>
           <input
@@ -177,7 +183,9 @@ export default function AdminUsuariosPage() {
           <input
             type="password"
             value={form.password}
-            onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
+            onChange={(e) =>
+              setForm((p) => ({ ...p, password: e.target.value }))
+            }
             required={!isEditing}
             minLength={6}
           />
@@ -186,7 +194,10 @@ export default function AdminUsuariosPage() {
           <select
             value={form.role}
             onChange={(e) =>
-              setForm((p) => ({ ...p, role: e.target.value as FormState["role"] }))
+              setForm((p) => ({
+                ...p,
+                role: e.target.value as FormState["role"],
+              }))
             }
           >
             <option value="ADMIN">ADMIN</option>
@@ -198,35 +209,53 @@ export default function AdminUsuariosPage() {
             <input
               type="checkbox"
               checked={form.isActive}
-              onChange={(e) => setForm((p) => ({ ...p, isActive: e.target.checked }))}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, isActive: e.target.checked }))
+              }
             />
             Ativo
           </label>
 
           <div className={styles.actions}>
             {isEditing && (
-              <button type="button" className={styles.secondaryButton} onClick={resetForm}>
-                Cancelar edicao
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={resetForm}
+              >
+                Cancelar edição
               </button>
             )}
-            <button type="submit" className={styles.primaryButton} disabled={submitting}>
-              {submitting ? "Salvando..." : isEditing ? "Salvar alteracoes" : "Cadastrar"}
+            <button
+              type="submit"
+              className={styles.primaryButton}
+              disabled={submitting}
+            >
+              {submitting
+                ? "Salvando..."
+                : isEditing
+                  ? "Salvar alterações"
+                  : "Cadastrar"}
             </button>
           </div>
         </form>
 
         <section className={styles.listCard}>
           <div className={styles.listHeader}>
-            <h2>Usuarios cadastrados</h2>
-            <button type="button" className={styles.refreshButton} onClick={loadItems}>
+            <h2>Usuários cadastrados</h2>
+            <button
+              type="button"
+              className={styles.refreshButton}
+              onClick={loadItems}
+            >
               Atualizar
             </button>
           </div>
 
           {loading ? (
-            <p>Carregando usuarios...</p>
+            <p>Carregando usuários...</p>
           ) : items.length === 0 ? (
-            <p>Nenhum usuario encontrado.</p>
+            <p>Nenhum usuário encontrado.</p>
           ) : (
             <div className={styles.tableWrap}>
               <table className={styles.table}>
@@ -237,7 +266,7 @@ export default function AdminUsuariosPage() {
                     <th>Email</th>
                     <th>Perfil</th>
                     <th>Ativo</th>
-                    <th>Acoes</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -247,12 +276,15 @@ export default function AdminUsuariosPage() {
                       <td>{item.name}</td>
                       <td>{item.email}</td>
                       <td>{item.role}</td>
-                      <td>{item.isActive ? "Sim" : "Nao"}</td>
+                      <td>{item.isActive ? "Sim" : "Não"}</td>
                       <td className={styles.rowActions}>
                         <button type="button" onClick={() => startEdit(item)}>
                           Editar
                         </button>
-                        <button type="button" onClick={() => handleDelete(item.id)}>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item.id)}
+                        >
                           Excluir
                         </button>
                       </td>

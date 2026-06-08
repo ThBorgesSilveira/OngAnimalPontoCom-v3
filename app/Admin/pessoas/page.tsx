@@ -55,7 +55,7 @@ export default function AdminPessoasPage() {
       const response = await api.get("/person/all");
       setItems(response.data);
     } catch {
-      setError("Nao foi possivel carregar as pessoas.");
+      setError("Não foi possivel carregar as pessoas.");
     } finally {
       setLoading(false);
     }
@@ -66,7 +66,7 @@ export default function AdminPessoasPage() {
       const response = await api.get("/address/all");
       setAddresses(response.data);
     } catch {
-      setError("Nao foi possivel carregar os enderecos.");
+      setError("Não foi possível carregar os endereços.");
     }
   }
 
@@ -127,7 +127,11 @@ export default function AdminPessoasPage() {
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message?: string | string[] }>;
       const backendMessage = axiosError.response?.data?.message;
-      setError(Array.isArray(backendMessage) ? backendMessage.join(" | ") : backendMessage ?? "Erro ao salvar pessoa.");
+      setError(
+        Array.isArray(backendMessage)
+          ? backendMessage.join(" | ")
+          : (backendMessage ?? "Erro ao salvar pessoa."),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -144,7 +148,7 @@ export default function AdminPessoasPage() {
       setMessage("Pessoa removida com sucesso.");
       await loadItems();
     } catch {
-      setError("Nao foi possivel remover a pessoa.");
+      setError("Não foi possível remover a pessoa.");
     }
   }
 
@@ -153,10 +157,10 @@ export default function AdminPessoasPage() {
       <section className={styles.hero}>
         <div className={styles.heroCopy}>
           <span className={styles.kicker}>ADM</span>
-          <h1>Gestao de pessoas</h1>
+          <h1>Gestão de pessoas</h1>
           <p>
-            Cadastro de pessoas \u2014 nome, tipo de pessoa (fisica ou juridica), CPF/CNPJ,
-            endereco e status.
+            Cadastro de pessoas — nome, tipo de pessoa (fisica ou juridica),
+            CPF/CNPJ, endereco e status.
           </p>
         </div>
         <div className={styles.heroLinks}>
@@ -167,7 +171,9 @@ export default function AdminPessoasPage() {
       </section>
 
       {(message || error) && (
-        <div className={message ? styles.successBox : styles.errorBox}>{message || error}</div>
+        <div className={message ? styles.successBox : styles.errorBox}>
+          {message || error}
+        </div>
       )}
 
       <section className={styles.grid}>
@@ -187,7 +193,10 @@ export default function AdminPessoasPage() {
           <select
             value={form.personType}
             onChange={(e) =>
-              setForm((p) => ({ ...p, personType: e.target.value as "FISICA" | "JURIDICA" }))
+              setForm((p) => ({
+                ...p,
+                personType: e.target.value as "FISICA" | "JURIDICA",
+              }))
             }
             required
           >
@@ -199,7 +208,9 @@ export default function AdminPessoasPage() {
           <input
             type="text"
             value={form.cpfCnpj}
-            onChange={(e) => setForm((p) => ({ ...p, cpfCnpj: e.target.value }))}
+            onChange={(e) =>
+              setForm((p) => ({ ...p, cpfCnpj: e.target.value }))
+            }
             required
             maxLength={20}
             placeholder="Ex: 123.456.789-00 ou 12.345.678/0001-90"
@@ -208,7 +219,9 @@ export default function AdminPessoasPage() {
           <label>Endereco *</label>
           <select
             value={form.addressId}
-            onChange={(e) => setForm((p) => ({ ...p, addressId: e.target.value }))}
+            onChange={(e) =>
+              setForm((p) => ({ ...p, addressId: e.target.value }))
+            }
             required
           >
             <option value="">Selecione um endereco</option>
@@ -223,19 +236,33 @@ export default function AdminPessoasPage() {
             <input
               type="checkbox"
               checked={form.isActive}
-              onChange={(e) => setForm((p) => ({ ...p, isActive: e.target.checked }))}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, isActive: e.target.checked }))
+              }
             />
             Ativo
           </label>
 
           <div className={styles.actions}>
             {isEditing && (
-              <button type="button" className={styles.secondaryButton} onClick={resetForm}>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={resetForm}
+              >
                 Cancelar edicao
               </button>
             )}
-            <button type="submit" className={styles.primaryButton} disabled={submitting}>
-              {submitting ? "Salvando..." : isEditing ? "Salvar alteracoes" : "Cadastrar"}
+            <button
+              type="submit"
+              className={styles.primaryButton}
+              disabled={submitting}
+            >
+              {submitting
+                ? "Salvando..."
+                : isEditing
+                  ? "Salvar alterações"
+                  : "Cadastrar"}
             </button>
           </div>
         </form>
@@ -243,7 +270,11 @@ export default function AdminPessoasPage() {
         <section className={styles.listCard}>
           <div className={styles.listHeader}>
             <h2>Pessoas cadastradas</h2>
-            <button type="button" className={styles.refreshButton} onClick={loadItems}>
+            <button
+              type="button"
+              className={styles.refreshButton}
+              onClick={loadItems}
+            >
               Atualizar
             </button>
           </div>
@@ -262,7 +293,7 @@ export default function AdminPessoasPage() {
                     <th>Tipo</th>
                     <th>CPF/CNPJ</th>
                     <th>Status</th>
-                    <th>Acoes</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -270,14 +301,19 @@ export default function AdminPessoasPage() {
                     <tr key={item.id}>
                       <td>{item.id}</td>
                       <td>{item.name}</td>
-                      <td>{item.personType === "FISICA" ? "Fisica" : "Juridica"}</td>
+                      <td>
+                        {item.personType === "FISICA" ? "Fisica" : "Juridica"}
+                      </td>
                       <td>{item.cpfCnpj}</td>
                       <td>{item.isActive ? "Ativo" : "Inativo"}</td>
                       <td className={styles.rowActions}>
                         <button type="button" onClick={() => startEdit(item)}>
                           Editar
                         </button>
-                        <button type="button" onClick={() => handleDelete(item.id)}>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item.id)}
+                        >
                           Excluir
                         </button>
                       </td>
